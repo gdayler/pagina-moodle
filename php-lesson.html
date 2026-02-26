@@ -1,0 +1,1999 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Introducción a PHP</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Fraunces:wght@400;700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:         #f5f3ef;
+    --bg2:        #eceae4;
+    --bg3:        #e2dfd8;
+    --card:       #ffffff;
+    --border:     #d4d0c8;
+    --text:       #1a1916;
+    --text2:      #5a5750;
+    --text3:      #8a8680;
+    --accent:     #2d6a4f;
+    --accent2:    #52b788;
+    --accent3:    #b7e4c7;
+    --warn:       #c77b3a;
+    --warn2:      #f4a261;
+    --warn3:      #fde8d0;
+    --danger:     #b5373a;
+    --danger2:    #fde8e8;
+    --info:       #2563a8;
+    --info2:      #dbeafe;
+    --code-bg:    #1e1e2e;
+    --code-text:  #cdd6f4;
+    --code-kw:    #cba6f7;
+    --code-str:   #a6e3a1;
+    --code-num:   #fab387;
+    --code-fn:    #89b4fa;
+    --code-com:   #6c7086;
+    --code-cls:   #f9e2af;
+    --code-var:   #f38ba8;
+    --shadow:     0 2px 12px rgba(0,0,0,0.08);
+    --shadow-lg:  0 8px 32px rgba(0,0,0,0.12);
+  }
+
+  [data-theme="dark"] {
+    --bg:         #13121a;
+    --bg2:        #1a1927;
+    --bg3:        #222134;
+    --card:       #1e1d2e;
+    --border:     #2e2d42;
+    --text:       #e8e6f0;
+    --text2:      #9d9bb8;
+    --text3:      #6b6985;
+    --accent:     #52b788;
+    --accent2:    #74c69d;
+    --accent3:    #1a3d2d;
+    --warn:       #f4a261;
+    --warn2:      #e76f51;
+    --warn3:      #2d1f0f;
+    --danger:     #f38ba8;
+    --danger2:    #2d1318;
+    --info:       #89b4fa;
+    --info2:      #0f1b30;
+    --code-bg:    #11111b;
+    --shadow:     0 2px 12px rgba(0,0,0,0.4);
+    --shadow-lg:  0 8px 32px rgba(0,0,0,0.5);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    transition: background 0.3s, color 0.3s;
+  }
+
+  /* ── HEADER ── */
+  .site-header {
+    position: sticky; top: 0; z-index: 100;
+    background: var(--card);
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 2rem;
+    height: 56px;
+    box-shadow: var(--shadow);
+  }
+  .site-header .logo {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    font-size: 1rem;
+    color: var(--accent);
+    letter-spacing: -0.02em;
+  }
+  .site-header .logo span { color: var(--text3); }
+  .nav-controls { display: flex; align-items: center; gap: 0.5rem; }
+  .btn-theme {
+    background: var(--bg2); border: 1px solid var(--border);
+    color: var(--text); cursor: pointer; border-radius: 8px;
+    padding: 6px 12px; font-size: 0.8rem; font-family: inherit;
+    transition: all 0.2s;
+  }
+  .btn-theme:hover { background: var(--bg3); }
+  .progress-bar {
+    position: fixed; top: 56px; left: 0; right: 0; z-index: 99;
+    height: 3px; background: var(--bg3);
+  }
+  .progress-fill {
+    height: 100%; background: var(--accent);
+    transition: width 0.3s ease;
+    width: 0%;
+  }
+
+  /* ── LAYOUT ── */
+  .layout {
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    min-height: calc(100vh - 59px);
+    width: 100%;
+  }
+
+  /* ── SIDEBAR ── */
+  .sidebar {
+    background: var(--card);
+    border-right: 1px solid var(--border);
+    position: sticky; top: 59px;
+    height: calc(100vh - 59px);
+    overflow-y: auto;
+    padding: 1.5rem 0;
+  }
+  .sidebar::-webkit-scrollbar { width: 4px; }
+  .sidebar::-webkit-scrollbar-track { background: transparent; }
+  .sidebar::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+  .sidebar-section { margin-bottom: 0.25rem; }
+  .sidebar-group-label {
+    font-size: 0.65rem; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.1em;
+    color: var(--text3); padding: 0.75rem 1.5rem 0.25rem;
+  }
+  .sidebar-link {
+    display: flex; align-items: center; gap: 0.6rem;
+    padding: 0.5rem 1.5rem;
+    color: var(--text2); text-decoration: none;
+    font-size: 0.85rem; font-weight: 400;
+    border-left: 3px solid transparent;
+    transition: all 0.15s; cursor: pointer;
+  }
+  .sidebar-link:hover { color: var(--text); background: var(--bg2); }
+  .sidebar-link.active {
+    color: var(--accent); border-left-color: var(--accent);
+    background: var(--bg2); font-weight: 500;
+  }
+  .sidebar-link .num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem; color: var(--text3);
+    min-width: 20px;
+  }
+
+  /* ── MAIN CONTENT ── */
+  .main {
+    padding: 0;
+    overflow-x: hidden;
+  }
+
+  /* ── SLIDE ── */
+  .slide {
+    min-height: calc(100vh - 59px);
+    padding: 3rem 3.5rem;
+    border-bottom: 1px solid var(--border);
+    scroll-margin-top: 59px;
+    width: 100%;
+  }
+  .slide:last-child { border-bottom: none; }
+  .slide.hero {
+    background: var(--bg2);
+    display: flex; flex-direction: column; justify-content: center;
+    align-items: flex-start;
+    min-height: 100vh;
+  }
+
+  /* ── TYPOGRAPHY ── */
+  .slide-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.12em;
+    color: var(--accent); margin-bottom: 0.75rem;
+    display: flex; align-items: center; gap: 0.5rem;
+  }
+  .slide-tag::before { content: ''; display: block; width: 20px; height: 2px; background: var(--accent); }
+
+  h1 {
+    font-family: 'Fraunces', serif;
+    font-size: clamp(2.5rem, 5vw, 4rem);
+    font-weight: 900; line-height: 1.05;
+    color: var(--text); margin-bottom: 1rem;
+  }
+  h2 {
+    font-family: 'Fraunces', serif;
+    font-size: clamp(1.8rem, 3vw, 2.6rem);
+    font-weight: 700; line-height: 1.1;
+    color: var(--text); margin-bottom: 0.5rem;
+  }
+  h3 {
+    font-family: 'Fraunces', serif;
+    font-size: 1.3rem; font-weight: 700;
+    color: var(--text); margin-bottom: 0.5rem;
+  }
+  h4 {
+    font-size: 0.9rem; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.05em;
+    color: var(--text2); margin-bottom: 0.5rem;
+  }
+  p { line-height: 1.7; color: var(--text2); margin-bottom: 0.75rem; }
+  .lead { font-size: 1.15rem; color: var(--text2); line-height: 1.6; max-width: 680px; }
+
+  /* ── CODE ── */
+  pre {
+    background: var(--code-bg);
+    border-radius: 12px;
+    padding: 1.5rem;
+    overflow-x: auto;
+    font-size: 0.82rem;
+    line-height: 1.65;
+    border: 1px solid #2a2a3e;
+    position: relative;
+    margin: 0.75rem 0;
+  }
+  pre code { font-family: 'JetBrains Mono', monospace; color: var(--code-text); }
+  .kw  { color: var(--code-kw); font-weight: 600; }
+  .str { color: var(--code-str); }
+  .num { color: var(--code-num); }
+  .fn  { color: var(--code-fn); }
+  .cls { color: var(--code-cls); font-weight: 600; }
+  .var { color: var(--code-var); }
+  .com { color: var(--code-com); font-style: italic; }
+  .op  { color: #89dceb; }
+  .pre-label {
+    position: absolute; top: 0.6rem; right: 1rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem; color: var(--code-com);
+    text-transform: uppercase; letter-spacing: 0.05em;
+  }
+
+  /* Inline code */
+  code:not(pre code) {
+    background: var(--bg3); color: var(--accent);
+    padding: 2px 6px; border-radius: 4px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85em;
+  }
+
+  /* ── CARDS & BOXES ── */
+  .cards { display: grid; gap: 1rem; margin: 1.25rem 0; }
+  .cards-2 { grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
+  .cards-3 { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px; padding: 1.25rem;
+    box-shadow: var(--shadow);
+  }
+  .card-icon { font-size: 1.5rem; margin-bottom: 0.5rem; }
+
+  .callout {
+    border-radius: 10px; padding: 1rem 1.25rem;
+    border-left: 4px solid; margin: 1rem 0;
+    font-size: 0.9rem; line-height: 1.6;
+  }
+  .callout p { margin: 0; }
+  .callout.info { background: var(--info2); border-color: var(--info); color: var(--info); }
+  .callout.warn { background: var(--warn3); border-color: var(--warn); color: var(--warn); }
+  .callout.good { background: var(--accent3); border-color: var(--accent); color: var(--accent); }
+  .callout.bad  { background: var(--danger2); border-color: var(--danger); color: var(--danger); }
+  .callout strong { display: block; margin-bottom: 0.25rem; }
+  [data-theme="dark"] .callout.info { color: var(--info); }
+  [data-theme="dark"] .callout.good { color: var(--accent2); }
+
+  .badge {
+    display: inline-block; padding: 3px 10px;
+    border-radius: 999px; font-size: 0.72rem; font-weight: 600;
+    letter-spacing: 0.04em; text-transform: uppercase;
+  }
+  .badge-green { background: var(--accent3); color: var(--accent); }
+  .badge-warn  { background: var(--warn3);   color: var(--warn); }
+  .badge-red   { background: var(--danger2); color: var(--danger); }
+  .badge-blue  { background: var(--info2);   color: var(--info); }
+
+  /* Comparison blocks */
+  .compare { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1rem 0; }
+  @media (max-width: 760px) { .compare { grid-template-columns: 1fr; } }
+  .compare-label {
+    font-size: 0.75rem; font-weight: 600; text-transform: uppercase;
+    letter-spacing: 0.06em; margin-bottom: 0.4rem;
+    display: flex; align-items: center; gap: 0.4rem;
+  }
+  .compare-label.bad  { color: var(--danger); }
+  .compare-label.good { color: var(--accent); }
+
+  /* Step list */
+  .steps { list-style: none; padding: 0; margin: 1rem 0; }
+  .steps li {
+    display: flex; gap: 1rem; align-items: flex-start;
+    padding: 0.75rem 0; border-bottom: 1px solid var(--border);
+  }
+  .steps li:last-child { border-bottom: none; }
+  .step-num {
+    flex-shrink: 0; width: 28px; height: 28px;
+    background: var(--accent); color: white;
+    border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; font-weight: 700;
+  }
+  .step-content { flex: 1; }
+  .step-content strong { display: block; color: var(--text); font-size: 0.9rem; }
+  .step-content span { color: var(--text2); font-size: 0.85rem; }
+
+  /* Table */
+  table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: 0.88rem; }
+  th {
+    background: var(--bg3); padding: 0.6rem 1rem;
+    text-align: left; font-weight: 600;
+    border-bottom: 2px solid var(--border);
+    color: var(--text2); font-size: 0.78rem;
+    text-transform: uppercase; letter-spacing: 0.05em;
+  }
+  td { padding: 0.6rem 1rem; border-bottom: 1px solid var(--border); color: var(--text2); }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: var(--bg2); }
+
+  /* Divider */
+  .divider {
+    height: 1px; background: var(--border);
+    margin: 1.5rem 0;
+  }
+
+  hr { border: none; border-top: 1px solid var(--border); margin: 2rem 0; }
+
+  /* Grid helper */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; align-items: start; }
+  @media (max-width: 900px) { .grid-2 { grid-template-columns: 1fr; } }
+
+  /* Spacers */
+  .mt1 { margin-top: 0.5rem; }
+  .mt2 { margin-top: 1rem; }
+  .mt3 { margin-top: 1.5rem; }
+  .mb2 { margin-bottom: 1rem; }
+
+  /* Hero specific */
+  .hero-kicker {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem; color: var(--text3);
+    margin-bottom: 1.5rem;
+  }
+  .hero-kicker span { color: var(--accent); }
+  .hero-desc { max-width: 600px; }
+  .hero-meta {
+    display: flex; flex-wrap: wrap; gap: 0.75rem;
+    margin-top: 2.5rem;
+  }
+  .hero-chip {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 999px; padding: 6px 14px;
+    font-size: 0.8rem; color: var(--text2);
+  }
+  .hero-chip strong { color: var(--text); }
+
+  .section-intro {
+    background: var(--bg2); border-radius: 16px;
+    padding: 2rem; margin-bottom: 2rem;
+    border-left: 4px solid var(--accent);
+  }
+
+  /* lab */
+  .lab-box {
+    background: var(--bg2); border: 2px dashed var(--accent);
+    border-radius: 16px; padding: 2rem;
+    text-align: center; margin: 1.5rem 0;
+  }
+  .lab-icon { font-size: 2.5rem; margin-bottom: 0.5rem; }
+
+  /* Footer slide */
+  .slide-footer {
+    background: var(--text); color: var(--bg);
+    display: flex; flex-direction: column;
+    justify-content: center; align-items: center;
+    text-align: center; gap: 0.5rem;
+    padding: 4rem;
+  }
+  .slide-footer h2 { color: var(--bg); font-size: 2.5rem; }
+  .slide-footer p { color: var(--text3); }
+
+  @media (max-width: 700px) {
+    .layout { grid-template-columns: 1fr; }
+    .sidebar { display: none; }
+    .slide { padding: 2rem 1.25rem; }
+  }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="logo">&lt;<span>php</span>&gt; intro</div>
+  <div class="nav-controls">
+    <button class="btn-theme" onclick="toggleTheme()">🌙 Modo oscuro</button>
+  </div>
+</header>
+<div class="progress-bar"><div class="progress-fill" id="progress"></div></div>
+
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <nav class="sidebar" id="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-group-label">Inicio</div>
+      <a class="sidebar-link active" onclick="scrollTo('slide-0')">
+        <span class="num">00</span> Introducción
+      </a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-group-label">Bloque 1 · Contexto</div>
+      <a class="sidebar-link" onclick="scrollTo('slide-1')">
+        <span class="num">01</span> ¿Qué es PHP?
+      </a>
+      <a class="sidebar-link" onclick="scrollTo('slide-2')">
+        <span class="num">02</span> Cómo ejecutar PHP
+      </a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-group-label">Bloque 2 · Sintaxis</div>
+      <a class="sidebar-link" onclick="scrollTo('slide-3')">
+        <span class="num">03</span> Variables y tipos
+      </a>
+      <a class="sidebar-link" onclick="scrollTo('slide-4')">
+        <span class="num">04</span> Arrays
+      </a>
+      <a class="sidebar-link" onclick="scrollTo('slide-5')">
+        <span class="num">05</span> Funciones tipadas
+      </a>
+      <a class="sidebar-link" onclick="scrollTo('slide-6')">
+        <span class="num">06</span> POO en PHP
+      </a>
+      <a class="sidebar-link" onclick="scrollTo('slide-7')">
+        <span class="num">07</span> Interfaces & Abstract
+      </a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-group-label">Bloque 3 · Particularidades</div>
+      <a class="sidebar-link" onclick="scrollTo('slide-8')">
+        <span class="num">08</span> Tipado estricto
+      </a>
+      <a class="sidebar-link" onclick="scrollTo('slide-9')">
+        <span class="num">09</span> Namespaces
+      </a>
+      <a class="sidebar-link" onclick="scrollTo('slide-10')">
+        <span class="num">10</span> Traits
+      </a>
+      <a class="sidebar-link" onclick="scrollTo('slide-11')">
+        <span class="num">11</span> Composer & Autoload
+      </a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-group-label">Bloque 4 · Principios</div>
+      <a class="sidebar-link" onclick="scrollTo('slide-12')">
+        <span class="num">12</span> KISS
+      </a>
+      <a class="sidebar-link" onclick="scrollTo('slide-13')">
+        <span class="num">13</span> YAGNI
+      </a>
+      <a class="sidebar-link" onclick="scrollTo('slide-14')">
+        <span class="num">14</span> SOLID — S y O
+      </a>
+      <a class="sidebar-link" onclick="scrollTo('slide-15')">
+        <span class="num">15</span> Singleton
+      </a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-group-label">Bloque 5 · Lab</div>
+      <a class="sidebar-link" onclick="scrollTo('slide-16')">
+        <span class="num">16</span> Laboratorio
+      </a>
+    </div>
+  </nav>
+
+  <!-- SLIDES -->
+  <main class="main" id="main">
+
+    <!-- ══════════════════════════════════════════ SLIDE 0: HERO -->
+    <section class="slide hero" id="slide-0">
+      <div class="hero-kicker">Sesión 01 · <span>1.5 horas</span> · PHP puro · Base para Laravel</div>
+      <h1>Introducción<br>a PHP</h1>
+      <p class="lead hero-desc">
+        Una sesión para programadores que ya saben programar. No vas a aprender qué es un bucle —
+        vas a aprender <strong>cómo piensa PHP</strong> y lo que lo hace distinto.
+      </p>
+      <div class="hero-meta">
+        <div class="hero-chip">⏱ <strong>10 min</strong> Instalación / sandbox</div>
+        <div class="hero-chip">📖 <strong>20 min</strong> Sintaxis rápida</div>
+        <div class="hero-chip">🔍 <strong>25 min</strong> Particularidades</div>
+        <div class="hero-chip">🧠 <strong>25 min</strong> Principios + Singleton</div>
+        <div class="hero-chip">🔬 <strong>10 min</strong> Laboratorio</div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════ SLIDE 1: QUÉ ES PHP -->
+    <section class="slide" id="slide-1">
+      <div class="slide-tag">Bloque 1 · Contexto</div>
+      <h2>¿Qué es PHP y por qué existe?</h2>
+      <p class="lead mt2">PHP nació en 1994 como una herramienta para generar HTML dinámico en el servidor. Hoy es el lenguaje detrás del 77% de la web — incluidos WordPress, Wikipedia y Facebook en sus inicios.</p>
+
+      <div class="mt3">
+        <h3>¿Dónde corre PHP?</h3>
+        <p>A diferencia de JavaScript que corre en el navegador, <strong>PHP corre en el servidor</strong>. El navegador nunca ve código PHP — solo recibe el resultado.</p>
+      </div>
+
+      <div class="card mt2" style="max-width:600px;">
+        <pre><code><span class="com">// Flujo de una petición PHP</span>
+
+<span class="fn">Navegador</span>  →  <span class="str">GET /productos.php</span>  →  <span class="cls">Servidor</span>
+   <span class="cls">Servidor</span>  →  ejecuta PHP  →  genera HTML
+   <span class="cls">Servidor</span>  →  <span class="str">200 OK + HTML puro</span>  →  <span class="fn">Navegador</span>
+
+<span class="com">// El navegador nunca ve esto:</span>
+<span class="kw">&lt;?php</span> <span class="kw">echo</span> <span class="str">"Hola"</span>; <span class="kw">?&gt;</span>
+
+<span class="com">// El navegador solo ve el resultado:</span>
+Hola</code></pre>
+      </div>
+
+      <div class="callout info mt2">
+        <strong>💡 Para esta sesión</strong>
+        No necesitan servidor web. PHP puede correr desde la terminal como cualquier script. <code>php archivo.php</code> y listo.
+      </div>
+
+      <div class="mt3">
+        <h3>¿Por qué PHP en 2025?</h3>
+        <div class="cards cards-3 mt2">
+          <div class="card">
+            <div class="card-icon">⚡</div>
+            <h4>Laravel</h4>
+            <p>El framework PHP más popular del mundo. Después de esta sesión lo van a usar.</p>
+          </div>
+          <div class="card">
+            <div class="card-icon">🌐</div>
+            <h4>Mercado laboral</h4>
+            <p>Miles de proyectos activos. WordPress, Magento, Drupal — todos en PHP.</p>
+          </div>
+          <div class="card">
+            <div class="card-icon">🚀</div>
+            <h4>PHP moderno</h4>
+            <p>PHP 8+ es un lenguaje completamente diferente al PHP 5 que quizás conocen de antes.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════ SLIDE 2: CÓMO EJECUTAR -->
+    <section class="slide" id="slide-2">
+      <div class="slide-tag">Bloque 1 · Contexto</div>
+      <h2>Cómo ejecutar PHP</h2>
+      <p class="lead mt2">Dos opciones. Usen la que tengan disponible — el resultado es idéntico.</p>
+
+      <div class="grid-2 mt3">
+        <div>
+          <h3>Opción A — Local (recomendada)</h3>
+          <pre><code><span class="com"># 1. Verificar si ya tienen PHP instalado</span>
+php -v
+
+<span class="com"># Debería mostrar algo como:</span>
+<span class="str">PHP 8.2.10 (cli) ...</span>
+
+<span class="com"># Si no tienen PHP:</span>
+
+<span class="com"># Windows → descargar en php.net</span>
+<span class="com"># o usar XAMPP (incluye Apache + MySQL)</span>
+
+<span class="com"># Mac</span>
+brew install php
+
+<span class="com"># Linux (Ubuntu/Debian)</span>
+sudo apt install php</code></pre>
+
+          <pre><code><span class="com"># 2. Crear archivo y ejecutar</span>
+<span class="com"># Crear: hola.php</span>
+
+<span class="kw">&lt;?php</span>
+<span class="kw">echo</span> <span class="str">"Hola mundo\n"</span>;
+
+<span class="com"># Ejecutar desde terminal</span>
+php hola.php
+
+<span class="com"># Output:</span>
+<span class="str">Hola mundo</span></code></pre>
+        </div>
+        <div>
+          <h3>Opción B — Online Sandbox</h3>
+          <div class="card">
+            <p>Sin instalar nada. Ir a:</p>
+            <ul style="list-style:none;padding:0;margin-top:0.5rem;">
+              <li style="padding:0.5rem 0;border-bottom:1px solid var(--border);">
+                🔗 <strong>onlinephp.io</strong> — editor completo, soporta PHP 8
+              </li>
+              <li style="padding:0.5rem 0;">
+                🔗 <strong>3v4l.org</strong> — ejecuta en múltiples versiones a la vez
+              </li>
+            </ul>
+          </div>
+
+          <div class="callout good mt2">
+            <strong>📌 Para el laboratorio</strong>
+            Cualquier opción sirve. Lo importante es que puedan escribir y ejecutar PHP hoy.
+          </div>
+
+          <h4 class="mt3">La etiqueta PHP</h4>
+          <pre><code><span class="kw">&lt;?php</span>
+<span class="com">// Todo el código PHP va aquí</span>
+<span class="com">// Siempre se abre con &lt;?php</span>
+<span class="com">// En archivos solo PHP, NO se cierra con ?&gt;</span>
+<span class="com">// (es una buena práctica — evita errores)</span>
+
+<span class="kw">echo</span> <span class="str">"Hola"</span>;  <span class="com">// punto y coma obligatorio</span></code></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════ SLIDE 3: VARIABLES -->
+    <section class="slide" id="slide-3">
+      <div class="slide-tag">Bloque 2 · Sintaxis</div>
+      <h2>Variables y tipos</h2>
+      <p class="lead mt2">En PHP las variables llevan <code>$</code> siempre. Sin excepción. Y PHP no infiere el tipo por defecto — puede convertir automáticamente, lo cual es peligroso.</p>
+
+      <div class="grid-2 mt3">
+        <div>
+          <h3>Declaración básica</h3>
+          <pre><code><span class="kw">&lt;?php</span>
+<span class="kw">declare</span>(<span class="fn">strict_types</span>=<span class="num">1</span>);  <span class="com">// siempre</span>
+
+<span class="com">// El $ es parte del nombre de la variable</span>
+<span class="var">$nombre</span>  = <span class="str">"Ana"</span>;        <span class="com">// string</span>
+<span class="var">$edad</span>    = <span class="num">25</span>;           <span class="com">// int</span>
+<span class="var">$precio</span>  = <span class="num">19.99</span>;        <span class="com">// float</span>
+<span class="var">$activo</span>  = <span class="kw">true</span>;         <span class="com">// bool</span>
+<span class="var">$vacio</span>   = <span class="kw">null</span>;         <span class="com">// null</span>
+
+<span class="com">// Interpolación en strings con dobles comillas</span>
+<span class="kw">echo</span> <span class="str">"Hola, <span class="var">$nombre</span>"</span>;          <span class="com">// Hola, Ana</span>
+<span class="kw">echo</span> <span class="str">"Precio: {<span class="var">$precio</span>} USD"</span>;   <span class="com">// con llaves</span>
+
+<span class="com">// Concatenación (como Java/C#)</span>
+<span class="kw">echo</span> <span class="str">"Hola, "</span> <span class="op">.</span> <span class="var">$nombre</span>;</code></pre>
+        </div>
+        <div>
+          <h3>Tipos en PHP 8</h3>
+          <table>
+            <thead>
+              <tr><th>Tipo</th><th>Ejemplo</th><th>Nota</th></tr>
+            </thead>
+            <tbody>
+              <tr><td><code>string</code></td><td><code>"Ana"</code></td><td>—</td></tr>
+              <tr><td><code>int</code></td><td><code>25</code></td><td>—</td></tr>
+              <tr><td><code>float</code></td><td><code>19.99</code></td><td>—</td></tr>
+              <tr><td><code>bool</code></td><td><code>true/false</code></td><td>—</td></tr>
+              <tr><td><code>null</code></td><td><code>null</code></td><td>—</td></tr>
+              <tr><td><code>array</code></td><td><code>[1, 2, 3]</code></td><td>Muy flexible</td></tr>
+              <tr><td><code>object</code></td><td>instancias</td><td>—</td></tr>
+            </tbody>
+          </table>
+
+          <div class="callout warn mt2">
+            <strong>⚠️ Sin strict_types PHP coacciona tipos</strong>
+            <code>$x = "5" + 3;</code> → PHP devuelve <code>8</code> sin error. Esto puede ocultar bugs graves.
+          </div>
+        </div>
+      </div>
+
+      <div class="mt3">
+        <h3>Operadores útiles de PHP 8</h3>
+        <pre><code><span class="kw">&lt;?php</span>
+<span class="com">// Null coalescing — si es null, usa el valor por defecto</span>
+<span class="var">$nombre</span> = <span class="var">$_GET</span>[<span class="str">'nombre'</span>] <span class="op">??</span> <span class="str">'Anónimo'</span>;
+
+<span class="com">// Match — como switch pero estricto y retorna valor</span>
+<span class="var">$estado</span> = <span class="num">2</span>;
+<span class="var">$texto</span> = <span class="kw">match</span>(<span class="var">$estado</span>) {
+    <span class="num">1</span>       => <span class="str">'Activo'</span>,
+    <span class="num">2</span>       => <span class="str">'Inactivo'</span>,
+    <span class="kw">default</span> => <span class="str">'Desconocido'</span>,
+};
+
+<span class="com">// Spread operator</span>
+<span class="kw">function</span> <span class="fn">sumar</span>(<span class="kw">int</span> ...<span class="var">$nums</span>): <span class="kw">int</span> {
+    <span class="kw">return</span> <span class="fn">array_sum</span>(<span class="var">$nums</span>);
+}
+<span class="fn">sumar</span>(<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>, <span class="num">4</span>); <span class="com">// 10</span></code></pre>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════ SLIDE 4: ARRAYS -->
+    <section class="slide" id="slide-4">
+      <div class="slide-tag">Bloque 2 · Sintaxis</div>
+      <h2>Arrays en PHP</h2>
+      <p class="lead mt2">El array de PHP es una sola estructura que funciona como lista, mapa, pila y cola a la vez. Es el tipo más poderoso y usado del lenguaje.</p>
+
+      <div class="grid-2 mt3">
+        <div>
+          <h3>Array indexado (lista)</h3>
+          <pre><code><span class="kw">&lt;?php</span>
+<span class="var">$colores</span> = [<span class="str">"rojo"</span>, <span class="str">"verde"</span>, <span class="str">"azul"</span>];
+
+<span class="com">// Acceso por índice (base 0)</span>
+<span class="kw">echo</span> <span class="var">$colores</span>[<span class="num">0</span>];  <span class="com">// "rojo"</span>
+
+<span class="com">// Agregar al final</span>
+<span class="var">$colores</span>[] = <span class="str">"amarillo"</span>;
+
+<span class="com">// Recorrer</span>
+<span class="kw">foreach</span> (<span class="var">$colores</span> <span class="kw">as</span> <span class="var">$color</span>) {
+    <span class="kw">echo</span> <span class="var">$color</span> <span class="op">.</span> <span class="str">"\n"</span>;
+}
+
+<span class="com">// Contar elementos</span>
+<span class="kw">echo</span> <span class="fn">count</span>(<span class="var">$colores</span>);  <span class="com">// 4</span></code></pre>
+
+          <h3 class="mt2">Array asociativo (mapa/dict)</h3>
+          <pre><code><span class="var">$persona</span> = [
+    <span class="str">"nombre"</span> => <span class="str">"Ana"</span>,
+    <span class="str">"edad"</span>   => <span class="num">25</span>,
+    <span class="str">"email"</span>  => <span class="str">"ana@mail.com"</span>,
+];
+
+<span class="com">// Acceso por clave</span>
+<span class="kw">echo</span> <span class="var">$persona</span>[<span class="str">"nombre"</span>];  <span class="com">// Ana</span>
+
+<span class="com">// Recorrer con clave y valor</span>
+<span class="kw">foreach</span> (<span class="var">$persona</span> <span class="kw">as</span> <span class="var">$clave</span> => <span class="var">$valor</span>) {
+    <span class="kw">echo</span> <span class="str">"<span class="var">$clave</span>: <span class="var">$valor</span>\n"</span>;
+}
+
+<span class="com">// Verificar si existe una clave</span>
+<span class="kw">if</span> (<span class="fn">array_key_exists</span>(<span class="str">"edad"</span>, <span class="var">$persona</span>)) { ... }</code></pre>
+        </div>
+        <div>
+          <h3>Array multidimensional</h3>
+          <pre><code><span class="var">$usuarios</span> = [
+    [
+        <span class="str">"nombre"</span> => <span class="str">"Ana"</span>,
+        <span class="str">"rol"</span>    => <span class="str">"admin"</span>,
+    ],
+    [
+        <span class="str">"nombre"</span> => <span class="str">"Bob"</span>,
+        <span class="str">"rol"</span>    => <span class="str">"user"</span>,
+    ],
+];
+
+<span class="kw">echo</span> <span class="var">$usuarios</span>[<span class="num">0</span>][<span class="str">"nombre"</span>];  <span class="com">// Ana</span></code></pre>
+
+          <h3 class="mt2">Funciones de array más usadas</h3>
+          <pre><code><span class="var">$nums</span> = [<span class="num">3</span>, <span class="num">1</span>, <span class="num">4</span>, <span class="num">1</span>, <span class="num">5</span>];
+
+<span class="com">// Filtrar</span>
+<span class="var">$mayores</span> = <span class="fn">array_filter</span>(<span class="var">$nums</span>, <span class="kw">fn</span>(<span class="var">$n</span>) => <span class="var">$n</span> > <span class="num">2</span>);
+<span class="com">// [3, 4, 5]</span>
+
+<span class="com">// Transformar</span>
+<span class="var">$dobles</span> = <span class="fn">array_map</span>(<span class="kw">fn</span>(<span class="var">$n</span>) => <span class="var">$n</span> * <span class="num">2</span>, <span class="var">$nums</span>);
+<span class="com">// [6, 2, 8, 2, 10]</span>
+
+<span class="com">// Reducir</span>
+<span class="var">$suma</span> = <span class="fn">array_reduce</span>(<span class="var">$nums</span>, <span class="kw">fn</span>(<span class="var">$carry</span>, <span class="var">$n</span>) => <span class="var">$carry</span> + <span class="var">$n</span>, <span class="num">0</span>);
+<span class="com">// 14</span>
+
+<span class="com">// Ordenar</span>
+<span class="fn">sort</span>(<span class="var">$nums</span>);         <span class="com">// indexado</span>
+<span class="fn">asort</span>(<span class="var">$persona</span>);     <span class="com">// asociativo, mantiene claves</span>
+<span class="fn">ksort</span>(<span class="var">$persona</span>);     <span class="com">// por clave</span></code></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════ SLIDE 5: FUNCIONES -->
+    <section class="slide" id="slide-5">
+      <div class="slide-tag">Bloque 2 · Sintaxis</div>
+      <h2>Funciones con tipado</h2>
+      <p class="lead mt2">En PHP moderno las funciones pueden (y deben) declarar los tipos de sus parámetros y retorno. Esto convierte PHP en un lenguaje tan seguro como Java o C# en términos de tipos.</p>
+
+      <div class="grid-2 mt3">
+        <div>
+          <h3>Anatomía de una función tipada</h3>
+          <pre><code><span class="kw">&lt;?php</span>
+<span class="kw">declare</span>(<span class="fn">strict_types</span>=<span class="num">1</span>);
+
+<span class="com">// function nombre(tipo $param): tipoRetorno</span>
+<span class="kw">function</span> <span class="fn">saludar</span>(<span class="kw">string</span> <span class="var">$nombre</span>): <span class="kw">string</span>
+{
+    <span class="kw">return</span> <span class="str">"Hola, <span class="var">$nombre</span>"</span>;
+}
+
+<span class="com">// Múltiples parámetros</span>
+<span class="kw">function</span> <span class="fn">calcularDescuento</span>(
+    <span class="kw">float</span> <span class="var">$precio</span>,
+    <span class="kw">int</span>   <span class="var">$porcentaje</span>
+): <span class="kw">float</span> {
+    <span class="kw">return</span> <span class="var">$precio</span> * (<span class="num">1</span> - <span class="var">$porcentaje</span> / <span class="num">100</span>);
+}
+
+<span class="fn">calcularDescuento</span>(<span class="num">100.0</span>, <span class="num">20</span>);  <span class="com">// 80.0</span></code></pre>
+
+          <h3 class="mt2">Parámetros opcionales y nullable</h3>
+          <pre><code><span class="com">// Valor por defecto = parámetro opcional</span>
+<span class="kw">function</span> <span class="fn">crear</span>(<span class="kw">string</span> <span class="var">$nombre</span>, <span class="kw">int</span> <span class="var">$edad</span> = <span class="num">18</span>): <span class="kw">string</span>
+{
+    <span class="kw">return</span> <span class="str">"<span class="var">$nombre</span> (<span class="var">$edad</span> años)"</span>;
+}
+
+<span class="fn">crear</span>(<span class="str">"Ana"</span>);        <span class="com">// "Ana (18 años)"</span>
+<span class="fn">crear</span>(<span class="str">"Bob"</span>, <span class="num">30</span>);   <span class="com">// "Bob (30 años)"</span>
+
+<span class="com">// Nullable: acepta el tipo O null</span>
+<span class="kw">function</span> <span class="fn">buscarUsuario</span>(<span class="kw">int</span> <span class="var">$id</span>): <span class="op">?</span><span class="kw">string</span>
+{
+    <span class="com">// retorna string o null si no existe</span>
+    <span class="kw">return</span> <span class="var">$id</span> === <span class="num">1</span> ? <span class="str">"Ana"</span> : <span class="kw">null</span>;
+}</code></pre>
+        </div>
+        <div>
+          <h3>Arrow functions y closures</h3>
+          <pre><code><span class="com">// Arrow function (PHP 7.4+)</span>
+<span class="var">$doble</span> = <span class="kw">fn</span>(<span class="kw">int</span> <span class="var">$x</span>): <span class="kw">int</span> => <span class="var">$x</span> * <span class="num">2</span>;
+<span class="var">$doble</span>(<span class="num">5</span>); <span class="com">// 10</span>
+
+<span class="com">// Closure (función anónima)</span>
+<span class="var">$saludar</span> = <span class="kw">function</span>(<span class="kw">string</span> <span class="var">$n</span>): <span class="kw">string</span> {
+    <span class="kw">return</span> <span class="str">"Hola <span class="var">$n</span>"</span>;
+};
+<span class="var">$saludar</span>(<span class="str">"Ana"</span>); <span class="com">// "Hola Ana"</span>
+
+<span class="com">// Uso típico con array_map</span>
+<span class="var">$nombres</span> = [<span class="str">"ana"</span>, <span class="str">"bob"</span>, <span class="str">"carlos"</span>];
+<span class="var">$mayusculas</span> = <span class="fn">array_map</span>(
+    <span class="kw">fn</span>(<span class="var">$n</span>) => <span class="fn">ucfirst</span>(<span class="var">$n</span>),
+    <span class="var">$nombres</span>
+);
+<span class="com">// ["Ana", "Bob", "Carlos"]</span></code></pre>
+
+          <h3 class="mt2">Tipo de retorno void y never</h3>
+          <pre><code><span class="com">// void: no retorna nada</span>
+<span class="kw">function</span> <span class="fn">imprimirLog</span>(<span class="kw">string</span> <span class="var">$msg</span>): <span class="kw">void</span>
+{
+    <span class="kw">echo</span> <span class="str">"[LOG] <span class="var">$msg</span>\n"</span>;
+    <span class="com">// no puede tener return con valor</span>
+}
+
+<span class="com">// never: lanza excepción o termina ejecución</span>
+<span class="kw">function</span> <span class="fn">fallar</span>(<span class="kw">string</span> <span class="var">$msg</span>): <span class="kw">never</span>
+{
+    <span class="kw">throw new</span> <span class="cls">RuntimeException</span>(<span class="var">$msg</span>);
+}</code></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════ SLIDE 6: POO -->
+    <section class="slide" id="slide-6">
+      <div class="slide-tag">Bloque 2 · Sintaxis</div>
+      <h2>POO en PHP</h2>
+      <p class="lead mt2">Si ya saben POO en Java o Python, PHP es lo mismo con sintaxis diferente. El concepto no cambia: clases, herencia, encapsulamiento.</p>
+
+      <div class="grid-2 mt3">
+        <div>
+          <h3>Clase completa</h3>
+          <pre><code><span class="kw">&lt;?php</span>
+<span class="kw">declare</span>(<span class="fn">strict_types</span>=<span class="num">1</span>);
+
+<span class="kw">class</span> <span class="cls">Producto</span>
+{
+    <span class="com">// Propiedades tipadas (PHP 7.4+)</span>
+    <span class="kw">public</span> <span class="kw">string</span> <span class="var">$nombre</span>;
+    <span class="kw">private</span> <span class="kw">float</span> <span class="var">$precio</span>;
+    <span class="kw">protected</span> <span class="kw">int</span> <span class="var">$stock</span>;
+
+    <span class="com">// Constructor</span>
+    <span class="kw">public function</span> <span class="fn">__construct</span>(
+        <span class="kw">string</span> <span class="var">$nombre</span>,
+        <span class="kw">float</span> <span class="var">$precio</span>,
+        <span class="kw">int</span>   <span class="var">$stock</span> = <span class="num">0</span>
+    ) {
+        <span class="var">$this</span>->nombre = <span class="var">$nombre</span>;
+        <span class="var">$this</span>->precio = <span class="var">$precio</span>;
+        <span class="var">$this</span>->stock  = <span class="var">$stock</span>;
+    }
+
+    <span class="com">// Getter</span>
+    <span class="kw">public function</span> <span class="fn">getPrecio</span>(): <span class="kw">float</span>
+    {
+        <span class="kw">return</span> <span class="var">$this</span>->precio;
+    }
+
+    <span class="com">// Método de instancia</span>
+    <span class="kw">public function</span> <span class="fn">hayStock</span>(): <span class="kw">bool</span>
+    {
+        <span class="kw">return</span> <span class="var">$this</span>->stock > <span class="num">0</span>;
+    }
+}</code></pre>
+        </div>
+        <div>
+          <h3>Constructor Promotion (PHP 8)</h3>
+          <pre><code><span class="com">// Forma larga (PHP 7)</span>
+<span class="kw">class</span> <span class="cls">Usuario</span> {
+    <span class="kw">public</span> <span class="kw">string</span> <span class="var">$nombre</span>;
+    <span class="kw">public</span> <span class="kw">string</span> <span class="var">$email</span>;
+    <span class="kw">public function</span> <span class="fn">__construct</span>(<span class="kw">string</span> <span class="var">$n</span>, <span class="kw">string</span> <span class="var">$e</span>) {
+        <span class="var">$this</span>->nombre = <span class="var">$n</span>;
+        <span class="var">$this</span>->email  = <span class="var">$e</span>;
+    }
+}
+
+<span class="com">// Forma corta (PHP 8) — hace lo mismo</span>
+<span class="kw">class</span> <span class="cls">Usuario</span> {
+    <span class="kw">public function</span> <span class="fn">__construct</span>(
+        <span class="kw">public</span> <span class="kw">readonly</span> <span class="kw">string</span> <span class="var">$nombre</span>,
+        <span class="kw">public</span> <span class="kw">readonly</span> <span class="kw">string</span> <span class="var">$email</span>,
+    ) {}
+}
+<span class="com">// readonly = no puede modificarse después de crear</span></code></pre>
+
+          <h3 class="mt2">Herencia</h3>
+          <pre><code><span class="kw">class</span> <span class="cls">Animal</span> {
+    <span class="kw">public function</span> <span class="fn">__construct</span>(
+        <span class="kw">public</span> <span class="kw">readonly</span> <span class="kw">string</span> <span class="var">$nombre</span>
+    ) {}
+
+    <span class="kw">public function</span> <span class="fn">describir</span>(): <span class="kw">string</span> {
+        <span class="kw">return</span> <span class="str">"Soy <span class="op">{</span><span class="var">$this</span>->nombre<span class="op">}</span>"</span>;
+    }
+}
+
+<span class="kw">class</span> <span class="cls">Perro</span> <span class="kw">extends</span> <span class="cls">Animal</span> {
+    <span class="kw">public function</span> <span class="fn">hablar</span>(): <span class="kw">string</span> {
+        <span class="com">// parent:: accede al padre</span>
+        <span class="kw">return</span> <span class="fn">parent</span>::<span class="fn">describir</span>() <span class="op">.</span> <span class="str">" — ¡Guau!"</span>;
+    }
+}
+
+<span class="var">$p</span> = <span class="kw">new</span> <span class="cls">Perro</span>(<span class="str">"Rex"</span>);
+<span class="kw">echo</span> <span class="var">$p</span>-><span class="fn">hablar</span>(); <span class="com">// "Soy Rex — ¡Guau!"</span></code></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════ SLIDE 7: INTERFACES -->
+    <section class="slide" id="slide-7">
+      <div class="slide-tag">Bloque 2 · Sintaxis</div>
+      <h2>Interfaces y clases abstractas</h2>
+      <p class="lead mt2">Mismo concepto que en Java. La diferencia: PHP no tiene herencia múltiple de clases, pero sí puede implementar múltiples interfaces.</p>
+
+      <div class="grid-2 mt3">
+        <div>
+          <h3>Interface</h3>
+          <pre><code><span class="com">// Define un CONTRATO. No tiene implementación.</span>
+<span class="com">// Quien la implemente DEBE definir todos sus métodos.</span>
+
+<span class="kw">interface</span> <span class="cls">Exportable</span> {
+    <span class="kw">public function</span> <span class="fn">exportar</span>(): <span class="kw">string</span>;
+    <span class="kw">public function</span> <span class="fn">formato</span>(): <span class="kw">string</span>;
+}
+
+<span class="kw">interface</span> <span class="cls">Imprimible</span> {
+    <span class="kw">public function</span> <span class="fn">imprimir</span>(): <span class="kw">void</span>;
+}
+
+<span class="com">// Una clase puede implementar VARIAS interfaces</span>
+<span class="kw">class</span> <span class="cls">Reporte</span> <span class="kw">implements</span> <span class="cls">Exportable</span>, <span class="cls">Imprimible</span>
+{
+    <span class="kw">public function</span> <span class="fn">exportar</span>(): <span class="kw">string</span> {
+        <span class="kw">return</span> <span class="str">"datos..."</span>;
+    }
+    <span class="kw">public function</span> <span class="fn">formato</span>(): <span class="kw">string</span> {
+        <span class="kw">return</span> <span class="str">"PDF"</span>;
+    }
+    <span class="kw">public function</span> <span class="fn">imprimir</span>(): <span class="kw">void</span> {
+        <span class="kw">echo</span> <span class="var">$this</span>-><span class="fn">exportar</span>();
+    }
+}</code></pre>
+        </div>
+        <div>
+          <h3>Clase abstracta</h3>
+          <pre><code><span class="com">// Puede tener implementación parcial</span>
+<span class="com">// No se puede instanciar directamente</span>
+<span class="com">// Obliga a las subclases a implementar ciertos métodos</span>
+
+<span class="kw">abstract class</span> <span class="cls">Notificacion</span>
+{
+    <span class="com">// Método concreto: ya tiene implementación</span>
+    <span class="kw">public function</span> <span class="fn">registrar</span>(<span class="kw">string</span> <span class="var">$msg</span>): <span class="kw">void</span> {
+        <span class="kw">echo</span> <span class="str">"[LOG] <span class="var">$msg</span>\n"</span>;
+    }
+
+    <span class="com">// Método abstracto: las subclases DEBEN implementarlo</span>
+    <span class="kw">abstract public function</span> <span class="fn">enviar</span>(<span class="kw">string</span> <span class="var">$msg</span>): <span class="kw">bool</span>;
+}
+
+<span class="kw">class</span> <span class="cls">NotificacionEmail</span> <span class="kw">extends</span> <span class="cls">Notificacion</span>
+{
+    <span class="kw">public function</span> <span class="fn">enviar</span>(<span class="kw">string</span> <span class="var">$msg</span>): <span class="kw">bool</span> {
+        <span class="var">$this</span>-><span class="fn">registrar</span>(<span class="var">$msg</span>);  <span class="com">// usa método del padre</span>
+        <span class="com">// lógica de envío de email...</span>
+        <span class="kw">return</span> <span class="kw">true</span>;
+    }
+}</code></pre>
+
+          <div class="callout info mt2">
+            <strong>Interface vs Abstract</strong>
+            Usa <strong>interface</strong> cuando defines un contrato puro. Usa <strong>abstract</strong> cuando tienes comportamiento común que quieres compartir entre subclases.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════ SLIDE 8: TIPADO ESTRICTO -->
+    <section class="slide" id="slide-8">
+      <div class="slide-tag">Bloque 3 · Particularidades de PHP</div>
+      <h2>Tipado estricto</h2>
+      <p class="lead mt2">PHP tiene un sistema de tipos opcional. Sin activarlo, PHP hace conversiones automáticas que parecen convenientes pero esconden bugs. <code>declare(strict_types=1)</code> lo desactiva.</p>
+
+      <div class="mt3">
+        <h3>El problema sin strict_types</h3>
+        <div class="compare">
+          <div>
+            <div class="compare-label bad">❌ Sin strict_types (peligroso)</div>
+            <pre><code><span class="kw">function</span> <span class="fn">dividir</span>(<span class="kw">int</span> <span class="var">$a</span>, <span class="kw">int</span> <span class="var">$b</span>): <span class="kw">float</span>
+{
+    <span class="kw">return</span> <span class="var">$a</span> / <span class="var">$b</span>;
+}
+
+<span class="com">// PHP convierte "10" a 10 silenciosamente</span>
+<span class="fn">dividir</span>(<span class="str">"10"</span>, <span class="str">"2"</span>);  <span class="com">// retorna 5.0 — sin error</span>
+
+<span class="com">// Esto también funciona sin error:</span>
+<span class="fn">dividir</span>(<span class="str">"10abc"</span>, <span class="num">2</span>); <span class="com">// PHP toma el 10, ignora "abc"</span>
+
+<span class="com">// ¿Por qué es malo?</span>
+<span class="com">// Tu código recibe datos incorrectos</span>
+<span class="com">// y no te avisa. El bug aparece después,</span>
+<span class="com">// en producción, en el peor momento.</span></code></pre>
+          </div>
+          <div>
+            <div class="compare-label good">✅ Con strict_types (seguro)</div>
+            <pre><code><span class="kw">&lt;?php</span>
+<span class="kw">declare</span>(<span class="fn">strict_types</span>=<span class="num">1</span>);  <span class="com">// PRIMERA línea</span>
+
+<span class="kw">function</span> <span class="fn">dividir</span>(<span class="kw">int</span> <span class="var">$a</span>, <span class="kw">int</span> <span class="var">$b</span>): <span class="kw">float</span>
+{
+    <span class="kw">return</span> <span class="var">$a</span> / <span class="var">$b</span>;
+}
+
+<span class="fn">dividir</span>(<span class="str">"10"</span>, <span class="str">"2"</span>);
+<span class="com">// ❌ TypeError: must be int, string given</span>
+<span class="com">// El error aparece DONDE está el problema</span>
+<span class="com">// no 200 líneas después</span>
+
+<span class="fn">dividir</span>(<span class="num">10</span>, <span class="num">2</span>); <span class="com">// ✅ 5.0</span></code></pre>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout warn mt2">
+        <strong>⚠️ Importante: es por archivo</strong>
+        <code>declare(strict_types=1)</code> solo afecta al archivo donde se declara, no a todo el proyecto. En Laravel, cada archivo ya lo incluye por convención.
+      </div>
+
+      <div class="mt3">
+        <h3>Union types (PHP 8) — un tipo O otro</h3>
+        <pre><code><span class="com">// Una función que acepta int o string</span>
+<span class="kw">function</span> <span class="fn">buscar</span>(<span class="kw">int</span>|<span class="kw">string</span> <span class="var">$id</span>): <span class="op">?</span><span class="cls">Usuario</span>
+{
+    <span class="kw">if</span> (<span class="fn">is_int</span>(<span class="var">$id</span>)) {
+        <span class="kw">return</span> <span class="cls">Usuario</span>::<span class="fn">findById</span>(<span class="var">$id</span>);
+    }
+    <span class="kw">return</span> <span class="cls">Usuario</span>::<span class="fn">findByEmail</span>(<span class="var">$id</span>);
+}</code></pre>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════ SLIDE 9: NAMESPACES -->
+    <section class="slide" id="slide-9">
+      <div class="slide-tag">Bloque 3 · Particularidades de PHP</div>
+      <h2>Namespaces</h2>
+      <p class="lead mt2">Un namespace es una forma de <strong>organizar y separar el código</strong> para que dos clases con el mismo nombre no entren en conflicto. Es el equivalente a los paquetes de Java o los módulos de Python.</p>
+
+      <div class="mt3">
+        <h3>El problema que resuelve</h3>
+        <div class="callout bad">
+          <strong>Imagina este escenario:</strong>
+          Tienes una clase <code>Email</code> en tu sistema de notificaciones y otra clase <code>Email</code> en tu sistema de validaciones. Sin namespaces, PHP no puede tener dos clases con el mismo nombre en el mismo proyecto.
+        </div>
+      </div>
+
+      <div class="grid-2 mt3">
+        <div>
+          <h3>Declarar un namespace</h3>
+          <pre><code><span class="com">// Archivo: src/Notificaciones/Email.php</span>
+<span class="kw">&lt;?php</span>
+<span class="kw">declare</span>(<span class="fn">strict_types</span>=<span class="num">1</span>);
+
+<span class="com">// Namespace = ruta lógica de la clase</span>
+<span class="com">// Debe ser la PRIMERA instrucción (después de declare)</span>
+<span class="kw">namespace</span> <span class="cls">App\Notificaciones</span>;
+
+<span class="kw">class</span> <span class="cls">Email</span>
+{
+    <span class="kw">public function</span> <span class="fn">enviar</span>(<span class="kw">string</span> <span class="var">$destino</span>): <span class="kw">bool</span>
+    {
+        <span class="kw">echo</span> <span class="str">"Enviando email a: <span class="var">$destino</span>"</span>;
+        <span class="kw">return</span> <span class="kw">true</span>;
+    }
+}</code></pre>
+
+          <pre><code><span class="com">// Archivo: src/Validaciones/Email.php</span>
+<span class="kw">&lt;?php</span>
+<span class="kw">declare</span>(<span class="fn">strict_types</span>=<span class="num">1</span>);
+
+<span class="kw">namespace</span> <span class="cls">App\Validaciones</span>;
+
+<span class="kw">class</span> <span class="cls">Email</span>  <span class="com">// ← mismo nombre, distinto namespace</span>
+{
+    <span class="kw">public function</span> <span class="fn">esValido</span>(<span class="kw">string</span> <span class="var">$email</span>): <span class="kw">bool</span>
+    {
+        <span class="kw">return</span> <span class="fn">filter_var</span>(<span class="var">$email</span>, <span class="op">FILTER_VALIDATE_EMAIL</span>) !== <span class="kw">false</span>;
+    }
+}</code></pre>
+        </div>
+        <div>
+          <h3>Usar clases con <code>use</code></h3>
+          <pre><code><span class="com">// Archivo: index.php</span>
+<span class="kw">&lt;?php</span>
+<span class="kw">declare</span>(<span class="fn">strict_types</span>=<span class="num">1</span>);
+
+<span class="com">// use importa la clase a este archivo</span>
+<span class="kw">use</span> <span class="cls">App\Notificaciones\Email</span> <span class="kw">as</span> <span class="cls">EmailNotif</span>;
+<span class="kw">use</span> <span class="cls">App\Validaciones\Email</span>  <span class="kw">as</span> <span class="cls">EmailValid</span>;
+
+<span class="var">$email</span> = <span class="str">"ana@mail.com"</span>;
+
+<span class="com">// Uso con alias</span>
+<span class="var">$validator</span> = <span class="kw">new</span> <span class="cls">EmailValid</span>();
+<span class="kw">if</span> (<span class="var">$validator</span>-><span class="fn">esValido</span>(<span class="var">$email</span>)) {
+    <span class="var">$notif</span> = <span class="kw">new</span> <span class="cls">EmailNotif</span>();
+    <span class="var">$notif</span>-><span class="fn">enviar</span>(<span class="var">$email</span>);
+}
+
+<span class="com">// Sin alias — si no hay conflicto</span>
+<span class="kw">use</span> <span class="cls">App\Pagos\Tarjeta</span>;  <span class="com">// import</span>
+<span class="var">$t</span> = <span class="kw">new</span> <span class="cls">Tarjeta</span>();     <span class="com">// uso directo</span>
+
+<span class="com">// Sin use — ruta completa (verbose)</span>
+<span class="var">$t</span> = <span class="kw">new</span> \<span class="cls">App\Pagos\Tarjeta</span>();</code></pre>
+        </div>
+      </div>
+
+      <div class="mt3">
+        <h3>Convención de namespaces en Laravel</h3>
+        <div class="callout info">
+          <strong>PSR-4: namespace = ruta de archivo</strong>
+          En Laravel, <code>App\Http\Controllers\UserController</code> vive en <code>app/Http/Controllers/UserController.php</code>. El namespace siempre refleja la carpeta. Esta convención la verán en <em>cada</em> archivo de Laravel.
+        </div>
+      </div>
+
+      <div class="card mt2" style="max-width:600px;">
+        <h4>Estructura típica de namespaces en un proyecto</h4>
+        <pre style="background:var(--bg2);border:none;padding:1rem;border-radius:8px;"><code style="color:var(--text);font-family:'JetBrains Mono',monospace;font-size:0.8rem;">src/
+├── Controladores/      → namespace App\Controladores
+│   └── UsuarioCtrl.php
+├── Modelos/            → namespace App\Modelos
+│   └── Usuario.php
+├── Servicios/          → namespace App\Servicios
+│   └── EmailService.php
+└── Repositorios/       → namespace App\Repositorios
+    └── UsuarioRepo.php</code></pre>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════ SLIDE 10: TRAITS -->
+    <section class="slide" id="slide-10">
+      <div class="slide-tag">Bloque 3 · Particularidades de PHP</div>
+      <h2>Traits</h2>
+      <p class="lead mt2">PHP no tiene herencia múltiple. Los traits son la solución: bloques de código reutilizables que puedes "mezclar" en cualquier clase, sin necesidad de herencia.</p>
+
+      <div class="callout info mt2">
+        <strong>💡 Analogía</strong>
+        Piensen en los traits como "mixins". Una clase puede usar múltiples traits, como si copiara y pegara el código de cada trait dentro de sí misma. Pero es más elegante y mantenible que copiar-pegar.
+      </div>
+
+      <div class="grid-2 mt3">
+        <div>
+          <h3>Definir y usar un trait</h3>
+          <pre><code><span class="kw">&lt;?php</span>
+<span class="com">// Trait: bloque de métodos reutilizables</span>
+<span class="kw">trait</span> <span class="cls">Timestamps</span>
+{
+    <span class="kw">private</span> <span class="kw">string</span> <span class="var">$creadoEn</span>;
+
+    <span class="kw">public function</span> <span class="fn">registrarCreacion</span>(): <span class="kw">void</span>
+    {
+        <span class="var">$this</span>->creadoEn = <span class="fn">date</span>(<span class="str">'Y-m-d H:i:s'</span>);
+    }
+
+    <span class="kw">public function</span> <span class="fn">getCreadoEn</span>(): <span class="kw">string</span>
+    {
+        <span class="kw">return</span> <span class="var">$this</span>->creadoEn;
+    }
+}
+
+<span class="kw">trait</span> <span class="cls">SoftDelete</span>
+{
+    <span class="kw">private</span> <span class="kw">bool</span> <span class="var">$eliminado</span> = <span class="kw">false</span>;
+
+    <span class="kw">public function</span> <span class="fn">eliminar</span>(): <span class="kw">void</span>
+    {
+        <span class="com">// No borra el registro, lo marca</span>
+        <span class="var">$this</span>->eliminado = <span class="kw">true</span>;
+    }
+
+    <span class="kw">public function</span> <span class="fn">estaEliminado</span>(): <span class="kw">bool</span>
+    {
+        <span class="kw">return</span> <span class="var">$this</span>->eliminado;
+    }
+}
+
+<span class="com">// Usar múltiples traits con "use"</span>
+<span class="kw">class</span> <span class="cls">Producto</span>
+{
+    <span class="kw">use</span> <span class="cls">Timestamps</span>, <span class="cls">SoftDelete</span>;  <span class="com">// ← aquí</span>
+
+    <span class="kw">public function</span> <span class="fn">__construct</span>(
+        <span class="kw">public</span> <span class="kw">readonly</span> <span class="kw">string</span> <span class="var">$nombre</span>
+    ) {
+        <span class="var">$this</span>-><span class="fn">registrarCreacion</span>();
+    }
+}
+
+<span class="var">$p</span> = <span class="kw">new</span> <span class="cls">Producto</span>(<span class="str">"Laptop"</span>);
+<span class="kw">echo</span> <span class="var">$p</span>-><span class="fn">getCreadoEn</span>(); <span class="com">// "2025-01-15 10:30:00"</span>
+<span class="var">$p</span>-><span class="fn">eliminar</span>();
+<span class="fn">var_dump</span>(<span class="var">$p</span>-><span class="fn">estaEliminado</span>()); <span class="com">// bool(true)</span></code></pre>
+        </div>
+        <div>
+          <h3>Sin traits — el problema</h3>
+          <pre><code><span class="com">// Quiero que Producto, Usuario y Orden</span>
+<span class="com">// tengan timestamps y soft delete.</span>
+<span class="com">// Sin traits tendría que:</span>
+
+<span class="com">// Opción 1: Copiar-pegar el código en cada clase</span>
+<span class="com">// → Horrible. Si cambio algo, cambio en 3 lugares.</span>
+
+<span class="com">// Opción 2: Herencia de una clase base</span>
+<span class="kw">class</span> <span class="cls">ModeloBase</span> {
+    <span class="com">// timestamps + softDelete aquí</span>
+}
+<span class="kw">class</span> <span class="cls">Producto</span> <span class="kw">extends</span> <span class="cls">ModeloBase</span> { ... }
+<span class="kw">class</span> <span class="cls">Usuario</span>  <span class="kw">extends</span> <span class="cls">ModeloBase</span> { ... }
+
+<span class="com">// → Funciona, pero ahora Producto no puede</span>
+<span class="com">// extender otra clase (PHP: herencia simple)</span>
+<span class="com">// Y ModeloBase crece sin control.</span></code></pre>
+
+          <div class="callout good mt2">
+            <strong>✅ Con traits</strong>
+            Cada funcionalidad en su trait. Las clases usan exactamente lo que necesitan. Sin restricciones de herencia.
+          </div>
+
+          <h3 class="mt3">Traits en Laravel</h3>
+          <pre><code><span class="com">// En Laravel verás esto constantemente:</span>
+<span class="kw">use</span> <span class="cls">Illuminate\Database\Eloquent\Model</span>;
+<span class="kw">use</span> <span class="cls">Illuminate\Database\Eloquent\SoftDeletes</span>;
+
+<span class="kw">class</span> <span class="cls">Post</span> <span class="kw">extends</span> <span class="cls">Model</span>
+{
+    <span class="kw">use</span> <span class="cls">SoftDeletes</span>;  <span class="com">// ← esto es un trait</span>
+    <span class="kw">use</span> <span class="cls">HasFactory</span>;  <span class="com">// ← este también</span>
+}</code></pre>
+          <p style="font-size:0.85rem;">Ahora saben exactamente qué hace ese <code>use</code> dentro de una clase.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════ SLIDE 11: COMPOSER -->
+    <section class="slide" id="slide-11">
+      <div class="slide-tag">Bloque 3 · Particularidades de PHP</div>
+      <h2>Composer y Autoload (PSR-4)</h2>
+      <p class="lead mt2">Composer es el gestor de paquetes de PHP. Como npm para JavaScript o pip para Python. Y PSR-4 es el estándar que le dice a PHP cómo encontrar tus clases automáticamente — sin <code>require</code> manual.</p>
+
+      <div class="callout warn mt2">
+        <strong>🤔 El problema sin autoload</strong>
+        Sin autoload, cada archivo PHP debe cargar manualmente sus dependencias: <code>require_once 'src/Pagos/Tarjeta.php'</code>. En un proyecto con 100 clases, esto se vuelve inmanejable.
+      </div>
+
+      <div class="grid-2 mt3">
+        <div>
+          <h3>Instalar Composer</h3>
+          <pre><code><span class="com"># Verificar si ya está instalado</span>
+composer --version
+
+<span class="com"># Instalar en Mac</span>
+brew install composer
+
+<span class="com"># En Linux</span>
+curl -sS https://getcomposer.org/installer | php
+sudo mv composer.phar /usr/local/bin/composer
+
+<span class="com"># Crear proyecto nuevo</span>
+composer init
+
+<span class="com"># Instalar un paquete</span>
+composer require guzzlehttp/guzzle</code></pre>
+
+          <h3 class="mt2">composer.json — el corazón del proyecto</h3>
+          <pre><code>{
+    <span class="str">"name"</span>: <span class="str">"miempresa/miapp"</span>,
+    <span class="str">"autoload"</span>: {
+        <span class="str">"psr-4"</span>: {
+            <span class="str">"App\\"</span>: <span class="str">"src/"</span>
+        }
+    },
+    <span class="str">"require"</span>: {
+        <span class="str">"php"</span>: <span class="str">">=8.2"</span>
+    }
+}</code></pre>
+          <pre><code><span class="com"># Regenerar el autoloader</span>
+composer dump-autoload</code></pre>
+        </div>
+        <div>
+          <h3>Cómo funciona PSR-4</h3>
+          <div class="card">
+            <h4>La regla es simple:</h4>
+            <p style="font-size:0.9rem;margin-top:0.5rem;">
+              El namespace de una clase debe mapear <strong>exactamente</strong> a su ruta en el disco.
+            </p>
+          </div>
+          <pre><code><span class="com">// composer.json dice:</span>
+<span class="com">// "App\\" → "src/"</span>
+
+<span class="com">// Entonces:</span>
+
+<span class="com">// App\Pagos\Tarjeta</span>
+<span class="com">// ↕</span>
+<span class="com">// src/Pagos/Tarjeta.php</span>
+
+<span class="com">// App\Http\Controllers\UserController</span>
+<span class="com">// ↕</span>
+<span class="com">// src/Http/Controllers/UserController.php</span>
+
+<span class="com">// En Laravel la raíz es app/ en vez de src/</span>
+<span class="com">// "App\\" → "app/"</span></code></pre>
+
+          <h3 class="mt2">El vendor/autoload.php</h3>
+          <pre><code><span class="com">// Solo necesitan estas 2 líneas en index.php</span>
+<span class="kw">&lt;?php</span>
+<span class="kw">require</span> <span class="fn">__DIR__</span> <span class="op">.</span> <span class="str">'/vendor/autoload.php'</span>;
+
+<span class="com">// A partir de aquí, PHP encuentra CUALQUIER clase</span>
+<span class="com">// automáticamente. No más require manuales.</span>
+<span class="kw">use</span> <span class="cls">App\Pagos\Tarjeta</span>;
+<span class="var">$t</span> = <span class="kw">new</span> <span class="cls">Tarjeta</span>();  <span class="com">// PHP la encuentra solo</span></code></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════ SLIDE 12: KISS -->
+    <section class="slide" id="slide-12">
+      <div class="slide-tag">Bloque 4 · Principios de diseño</div>
+      <h2>KISS — Keep It Simple, Stupid</h2>
+      <p class="lead mt2">El código más simple que funciona correctamente es siempre mejor. KISS no significa código corto — significa código que se entiende a primera lectura sin necesidad de comentarios que expliquen qué hace.</p>
+
+      <div class="callout info mt2">
+        <strong>💡 La regla de oro</strong>
+        Si necesitas un comentario para explicar <em>qué</em> hace el código, el código es demasiado complejo. Los comentarios deben explicar <em>por qué</em>, no <em>qué</em>.
+      </div>
+
+      <div class="compare mt3">
+        <div>
+          <div class="compare-label bad">❌ Viola KISS</div>
+          <pre><code><span class="kw">function</span> <span class="fn">procesarUsuario</span>(<span class="kw">array</span> <span class="var">$u</span>): <span class="kw">string</span>
+{
+    <span class="var">$resultado</span> = <span class="str">""</span>;
+    <span class="kw">if</span> (<span class="fn">isset</span>(<span class="var">$u</span>[<span class="str">'nombre'</span>])
+        && <span class="var">$u</span>[<span class="str">'nombre'</span>] != <span class="str">""</span>
+        && <span class="fn">strlen</span>(<span class="var">$u</span>[<span class="str">'nombre'</span>]) > <span class="num">0</span>) {
+        <span class="kw">if</span> (<span class="fn">isset</span>(<span class="var">$u</span>[<span class="str">'edad'</span>])
+            && <span class="var">$u</span>[<span class="str">'edad'</span>] > <span class="num">0</span>
+            && <span class="fn">is_int</span>(<span class="var">$u</span>[<span class="str">'edad'</span>])) {
+            <span class="kw">if</span> (<span class="var">$u</span>[<span class="str">'edad'</span>] >= <span class="num">18</span>) {
+                <span class="var">$resultado</span> = <span class="str">"El usuario "</span>
+                    . <span class="var">$u</span>[<span class="str">'nombre'</span>]
+                    . <span class="str">" tiene "</span>
+                    . <span class="var">$u</span>[<span class="str">'edad'</span>]
+                    . <span class="str">" años y es mayor de edad"</span>;
+            } <span class="kw">else</span> {
+                <span class="var">$resultado</span> = <span class="str">"El usuario "</span>
+                    . <span class="var">$u</span>[<span class="str">'nombre'</span>]
+                    . <span class="str">" tiene "</span>
+                    . <span class="var">$u</span>[<span class="str">'edad'</span>]
+                    . <span class="str">" años y es menor de edad"</span>;
+            }
+        }
+    }
+    <span class="kw">return</span> <span class="var">$resultado</span>;
+}
+
+<span class="com">// Problemas:
+// - 3 niveles de if anidados
+// - Validaciones redundantes (strlen > 0 y != "")
+// - Repetición de la concatenación
+// - Difícil de testear</span></code></pre>
+        </div>
+        <div>
+          <div class="compare-label good">✅ Respeta KISS</div>
+          <pre><code><span class="kw">function</span> <span class="fn">esMayorDeEdad</span>(<span class="kw">int</span> <span class="var">$edad</span>): <span class="kw">bool</span>
+{
+    <span class="kw">return</span> <span class="var">$edad</span> >= <span class="num">18</span>;
+}
+
+<span class="kw">function</span> <span class="fn">describirEdad</span>(<span class="kw">int</span> <span class="var">$edad</span>): <span class="kw">string</span>
+{
+    <span class="kw">return</span> <span class="fn">esMayorDeEdad</span>(<span class="var">$edad</span>) ? <span class="str">'mayor'</span> : <span class="str">'menor'</span>;
+}
+
+<span class="kw">function</span> <span class="fn">describirUsuario</span>(<span class="kw">string</span> <span class="var">$nombre</span>, <span class="kw">int</span> <span class="var">$edad</span>): <span class="kw">string</span>
+{
+    <span class="var">$estado</span> = <span class="fn">describirEdad</span>(<span class="var">$edad</span>);
+    <span class="kw">return</span> <span class="str">"<span class="var">$nombre</span> tiene <span class="var">$edad</span> años y es <span class="var">$estado</span> de edad"</span>;
+}
+
+<span class="com">// ✅ Cada función hace UNA cosa
+// ✅ Se entiende sin comentarios
+// ✅ Cada parte es testeable individualmente
+// ✅ Fácil de modificar (cambio la edad mínima en 1 lugar)</span>
+
+<span class="fn">describirUsuario</span>(<span class="str">"Ana"</span>, <span class="num">25</span>);
+<span class="com">// "Ana tiene 25 años y es mayor de edad"</span></code></pre>
+        </div>
+      </div>
+
+      <div class="callout warn mt3">
+        <strong>🧠 Regla práctica</strong>
+        Si una función tiene más de 20 líneas o más de 2 niveles de indentación, probablemente viola KISS. Divide en funciones más pequeñas.
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════ SLIDE 13: YAGNI -->
+    <section class="slide" id="slide-13">
+      <div class="slide-tag">Bloque 4 · Principios de diseño</div>
+      <h2>YAGNI — You Aren't Gonna Need It</h2>
+      <p class="lead mt2">No construyas lo que crees que vas a necesitar. Construye solo lo que se necesita hoy. El código que "tal vez necesitemos" tiene un costo real: hay que mantenerlo, testearlo, documentarlo y cargarlo aunque no se use.</p>
+
+      <div class="compare mt3">
+        <div>
+          <div class="compare-label bad">❌ Viola YAGNI</div>
+          <pre><code><span class="kw">class</span> <span class="cls">GeneradorReportes</span>
+{
+    <span class="com">// El cliente pidió solo PDF</span>
+
+    <span class="kw">public function</span> <span class="fn">generarPDF</span>(): <span class="kw">void</span>
+    {
+        <span class="com">// implementado</span>
+    }
+
+    <span class="kw">public function</span> <span class="fn">generarExcel</span>(): <span class="kw">void</span>
+    {
+        <span class="com">// "por si acaso lo piden"</span>
+    }
+
+    <span class="kw">public function</span> <span class="fn">generarWord</span>(): <span class="kw">void</span>
+    {
+        <span class="com">// "podría ser útil"</span>
+    }
+
+    <span class="kw">public function</span> <span class="fn">generarCSV</span>(): <span class="kw">void</span>
+    {
+        <span class="com">// "es fácil de hacer"</span>
+    }
+
+    <span class="kw">public function</span> <span class="fn">enviarPorEmail</span>(): <span class="kw">void</span>
+    {
+        <span class="com">// "seguro lo necesitan después"</span>
+    }
+
+    <span class="kw">public function</span> <span class="fn">guardarEnCloud</span>(): <span class="kw">void</span>
+    {
+        <span class="com">// nadie pidió esto</span>
+    }
+}</code></pre>
+        </div>
+        <div>
+          <div class="compare-label good">✅ Respeta YAGNI</div>
+          <pre><code><span class="kw">class</span> <span class="cls">GeneradorReportes</span>
+{
+    <span class="com">// El cliente pidió PDF. Se hace PDF.</span>
+
+    <span class="kw">public function</span> <span class="fn">generarPDF</span>(): <span class="kw">void</span>
+    {
+        <span class="com">// implementado y bien hecho</span>
+    }
+}
+
+<span class="com">// Cuando el cliente pida Excel:
+// → Se agrega Excel.
+// Cuando pida Word:
+// → Se agrega Word.
+// Si nunca lo piden:
+// → Nunca se pagó el costo de hacerlo.</span></code></pre>
+
+          <div class="callout good mt2">
+            <strong>✅ El costo real del código no usado</strong>
+            Cada línea de código extra es código que hay que leer, entender, mantener, testear y actualizar cuando cambie un requisito. El mejor código es el que no existe.
+          </div>
+
+          <h4 class="mt3">YAGNI no es excusa para código frágil</h4>
+          <pre><code><span class="com">// YAGNI no significa ignorar el futuro</span>
+<span class="com">// Significa no IMPLEMENTAR lo que no se necesita</span>
+
+<span class="com">// ✅ Usar una interfaz está bien (diseño flexible)</span>
+<span class="kw">interface</span> <span class="cls">Exportable</span> {
+    <span class="kw">public function</span> <span class="fn">exportar</span>(): <span class="kw">string</span>;
+}
+
+<span class="com">// ✅ Implementar solo lo necesario</span>
+<span class="kw">class</span> <span class="cls">ExportadorPDF</span> <span class="kw">implements</span> <span class="cls">Exportable</span> {
+    <span class="kw">public function</span> <span class="fn">exportar</span>(): <span class="kw">string</span> { ... }
+}</code></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════ SLIDE 14: SOLID -->
+    <section class="slide" id="slide-14">
+      <div class="slide-tag">Bloque 4 · Principios de diseño</div>
+      <h2>SOLID — S y O</h2>
+      <p class="lead mt2">SOLID son 5 principios de diseño OO. Nos enfocamos en los dos más impactantes para empezar: <strong>Single Responsibility</strong> y <strong>Open/Closed</strong>.</p>
+
+      <div class="mt3">
+        <h3>S — Single Responsibility Principle (SRP)</h3>
+        <p><strong>Una clase debe tener una sola razón para cambiar.</strong> Si una clase cambia cuando el sistema de pagos cambia <em>y también</em> cuando el sistema de emails cambia, tiene dos responsabilidades.</p>
+      </div>
+
+      <div class="compare mt2">
+        <div>
+          <div class="compare-label bad">❌ Viola SRP</div>
+          <pre><code><span class="kw">class</span> <span class="cls">Usuario</span>
+{
+    <span class="kw">public</span> <span class="kw">string</span> <span class="var">$nombre</span>;
+    <span class="kw">public</span> <span class="kw">string</span> <span class="var">$email</span>;
+
+    <span class="com">// Responsabilidad 1: datos del usuario</span>
+
+    <span class="com">// Responsabilidad 2: persistencia</span>
+    <span class="kw">public function</span> <span class="fn">guardarEnDB</span>(): <span class="kw">void</span> { ... }
+    <span class="kw">public function</span> <span class="fn">eliminarDeDB</span>(): <span class="kw">void</span> { ... }
+
+    <span class="com">// Responsabilidad 3: email</span>
+    <span class="kw">public function</span> <span class="fn">enviarBienvenida</span>(): <span class="kw">void</span> { ... }
+    <span class="kw">public function</span> <span class="fn">enviarRecordatorio</span>(): <span class="kw">void</span> { ... }
+
+    <span class="com">// Responsabilidad 4: reportes</span>
+    <span class="kw">public function</span> <span class="fn">generarPerfil</span>(): <span class="kw">string</span> { ... }
+}
+<span class="com">// Esta clase cambia si cambio la DB,
+// si cambio el proveedor de emails,
+// y si cambio el formato del perfil.
+// = 3 razones para cambiar. Viola SRP.</span></code></pre>
+        </div>
+        <div>
+          <div class="compare-label good">✅ Respeta SRP</div>
+          <pre><code><span class="com">// Cada clase tiene UNA responsabilidad</span>
+
+<span class="kw">class</span> <span class="cls">Usuario</span>  <span class="com">// solo datos</span>
+{
+    <span class="kw">public function</span> <span class="fn">__construct</span>(
+        <span class="kw">public</span> <span class="kw">readonly</span> <span class="kw">string</span> <span class="var">$nombre</span>,
+        <span class="kw">public</span> <span class="kw">readonly</span> <span class="kw">string</span> <span class="var">$email</span>
+    ) {}
+}
+
+<span class="kw">class</span> <span class="cls">UsuarioRepository</span>  <span class="com">// solo DB</span>
+{
+    <span class="kw">public function</span> <span class="fn">guardar</span>(<span class="cls">Usuario</span> <span class="var">$u</span>): <span class="kw">void</span> { ... }
+    <span class="kw">public function</span> <span class="fn">eliminar</span>(<span class="cls">Usuario</span> <span class="var">$u</span>): <span class="kw">void</span> { ... }
+}
+
+<span class="kw">class</span> <span class="cls">UsuarioMailer</span>  <span class="com">// solo emails</span>
+{
+    <span class="kw">public function</span> <span class="fn">bienvenida</span>(<span class="cls">Usuario</span> <span class="var">$u</span>): <span class="kw">void</span> { ... }
+}
+
+<span class="kw">class</span> <span class="cls">UsuarioPerfil</span>  <span class="com">// solo presentación</span>
+{
+    <span class="kw">public function</span> <span class="fn">generar</span>(<span class="cls">Usuario</span> <span class="var">$u</span>): <span class="kw">string</span> { ... }
+}</code></pre>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="mt2">
+        <h3>O — Open/Closed Principle (OCP)</h3>
+        <p><strong>El código debe estar abierto para extensión, pero cerrado para modificación.</strong> Cuando agregan una feature nueva, no deben tocar el código existente que ya funciona.</p>
+      </div>
+
+      <div class="compare mt2">
+        <div>
+          <div class="compare-label bad">❌ Viola OCP</div>
+          <pre><code><span class="kw">class</span> <span class="cls">Carrito</span>
+{
+    <span class="kw">public function</span> <span class="fn">calcular</span>(
+        <span class="kw">float</span> <span class="var">$precio</span>,
+        <span class="kw">string</span> <span class="var">$tipo</span>
+    ): <span class="kw">float</span> {
+        <span class="com">// Para agregar "gold" debo editar esta clase</span>
+        <span class="kw">if</span> (<span class="var">$tipo</span> === <span class="str">'estudiante'</span>) {
+            <span class="kw">return</span> <span class="var">$precio</span> * <span class="num">0.9</span>;
+        } <span class="kw">elseif</span> (<span class="var">$tipo</span> === <span class="str">'vip'</span>) {
+            <span class="kw">return</span> <span class="var">$precio</span> * <span class="num">0.7</span>;
+        } <span class="kw">elseif</span> (<span class="var">$tipo</span> === <span class="str">'empleado'</span>) {
+            <span class="kw">return</span> <span class="var">$precio</span> * <span class="num">0.8</span>;
+        }
+        <span class="kw">return</span> <span class="var">$precio</span>;
+    }
+}
+<span class="com">// Cada nuevo tipo de descuento
+// modifica código existente. Riesgo de romper algo.</span></code></pre>
+        </div>
+        <div>
+          <div class="compare-label good">✅ Respeta OCP</div>
+          <pre><code><span class="kw">interface</span> <span class="cls">Descuento</span>
+{
+    <span class="kw">public function</span> <span class="fn">aplicar</span>(<span class="kw">float</span> <span class="var">$precio</span>): <span class="kw">float</span>;
+}
+
+<span class="kw">class</span> <span class="cls">DescuentoEstudiante</span> <span class="kw">implements</span> <span class="cls">Descuento</span>
+{
+    <span class="kw">public function</span> <span class="fn">aplicar</span>(<span class="kw">float</span> <span class="var">$precio</span>): <span class="kw">float</span>
+    {
+        <span class="kw">return</span> <span class="var">$precio</span> * <span class="num">0.9</span>;
+    }
+}
+
+<span class="kw">class</span> <span class="cls">DescuentoVIP</span> <span class="kw">implements</span> <span class="cls">Descuento</span>
+{
+    <span class="kw">public function</span> <span class="fn">aplicar</span>(<span class="kw">float</span> <span class="var">$precio</span>): <span class="kw">float</span>
+    {
+        <span class="kw">return</span> <span class="var">$precio</span> * <span class="num">0.7</span>;
+    }
+}
+
+<span class="kw">class</span> <span class="cls">Carrito</span>
+{
+    <span class="com">// Carrito NO cambia cuando agrego descuentos</span>
+    <span class="kw">public function</span> <span class="fn">calcular</span>(
+        <span class="kw">float</span> <span class="var">$precio</span>,
+        <span class="cls">Descuento</span> <span class="var">$descuento</span>
+    ): <span class="kw">float</span> {
+        <span class="kw">return</span> <span class="var">$descuento</span>-><span class="fn">aplicar</span>(<span class="var">$precio</span>);
+    }
+}
+
+<span class="com">// Para agregar Gold: nueva clase, sin tocar Carrito</span>
+<span class="kw">class</span> <span class="cls">DescuentoGold</span> <span class="kw">implements</span> <span class="cls">Descuento</span>
+{
+    <span class="kw">public function</span> <span class="fn">aplicar</span>(<span class="kw">float</span> <span class="var">$precio</span>): <span class="kw">float</span>
+    {
+        <span class="kw">return</span> <span class="var">$precio</span> * <span class="num">0.6</span>;
+    }
+}</code></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════ SLIDE 15: SINGLETON -->
+    <section class="slide" id="slide-15">
+      <div class="slide-tag">Bloque 4 · Principios de diseño</div>
+      <h2>Patrón Singleton</h2>
+      <p class="lead mt2">Singleton garantiza que una clase tenga <strong>una sola instancia</strong> en toda la ejecución del programa, y proporciona un punto de acceso global a ella.</p>
+
+      <div class="callout info mt2">
+        <strong>💡 ¿Cuándo usarlo?</strong>
+        Cuando el costo de crear múltiples instancias es alto (conexión a DB), o cuando necesitas que todos los módulos del sistema compartan el mismo estado (configuración, logger).
+      </div>
+
+      <div class="grid-2 mt3">
+        <div>
+          <h3>El problema sin Singleton</h3>
+          <pre><code><span class="com">// Sin Singleton — cada módulo crea su conexión</span>
+<span class="kw">class</span> <span class="cls">UsuarioRepo</span>
+{
+    <span class="kw">private</span> <span class="cls">\PDO</span> <span class="var">$db</span>;
+    <span class="kw">public function</span> <span class="fn">__construct</span>() {
+        <span class="var">$this</span>->db = <span class="kw">new</span> <span class="cls">\PDO</span>(<span class="str">'mysql:...'</span>, <span class="str">'root'</span>, <span class="str">''</span>);
+        <span class="com">// nueva conexión a DB ← caro</span>
+    }
+}
+
+<span class="kw">class</span> <span class="cls">ProductoRepo</span>
+{
+    <span class="kw">private</span> <span class="cls">\PDO</span> <span class="var">$db</span>;
+    <span class="kw">public function</span> <span class="fn">__construct</span>() {
+        <span class="var">$this</span>->db = <span class="kw">new</span> <span class="cls">\PDO</span>(<span class="str">'mysql:...'</span>, <span class="str">'root'</span>, <span class="str">''</span>);
+        <span class="com">// otra conexión nueva ← innecesario</span>
+    }
+}
+
+<span class="com">// 10 repositorios = 10 conexiones abiertas
+// Las conexiones a DB son costosas: autenticación,
+// handshake TCP, memoria en el servidor de DB, etc.</span></code></pre>
+        </div>
+        <div>
+          <h3>Implementación del Singleton</h3>
+          <pre><code><span class="kw">&lt;?php</span>
+<span class="kw">declare</span>(<span class="fn">strict_types</span>=<span class="num">1</span>);
+
+<span class="kw">class</span> <span class="cls">Database</span>
+{
+    <span class="com">// static: pertenece a la CLASE, no a la instancia</span>
+    <span class="com">// ? = puede ser null (cuando aún no se creó)</span>
+    <span class="kw">private static</span> <span class="op">?</span><span class="cls">Database</span> <span class="var">$instancia</span> = <span class="kw">null</span>;
+
+    <span class="kw">private</span> <span class="cls">\PDO</span> <span class="var">$conexion</span>;
+
+    <span class="com">// private: nadie puede hacer "new Database()"</span>
+    <span class="kw">private function</span> <span class="fn">__construct</span>()
+    {
+        <span class="var">$this</span>->conexion = <span class="kw">new</span> \<span class="cls">PDO</span>(
+            <span class="str">'mysql:host=localhost;dbname=demo'</span>,
+            <span class="str">'root'</span>,
+            <span class="str">''</span>
+        );
+        <span class="kw">echo</span> <span class="str">"Conexión creada\n"</span>;
+    }
+
+    <span class="com">// El ÚNICO punto de acceso</span>
+    <span class="kw">public static function</span> <span class="fn">getInstance</span>(): <span class="kw">static</span>
+    {
+        <span class="com">// Si no existe, crearla UNA sola vez</span>
+        <span class="kw">if</span> (<span class="kw">self</span>::<span class="var">$instancia</span> === <span class="kw">null</span>) {
+            <span class="kw">self</span>::<span class="var">$instancia</span> = <span class="kw">new static</span>();
+        }
+        <span class="com">// Siempre retorna la MISMA instancia</span>
+        <span class="kw">return</span> <span class="kw">self</span>::<span class="var">$instancia</span>;
+    }
+
+    <span class="kw">public function</span> <span class="fn">query</span>(<span class="kw">string</span> <span class="var">$sql</span>): <span class="kw">array</span>
+    {
+        <span class="kw">return</span> <span class="var">$this</span>->conexion-><span class="fn">query</span>(<span class="var">$sql</span>)-><span class="fn">fetchAll</span>();
+    }
+}</code></pre>
+        </div>
+      </div>
+
+      <div class="mt3">
+        <h3>Demostración de que es la misma instancia</h3>
+        <pre><code><span class="com">// Llamar getInstance() múltiples veces</span>
+<span class="var">$db1</span> = <span class="cls">Database</span>::<span class="fn">getInstance</span>(); <span class="com">// imprime "Conexión creada"</span>
+<span class="var">$db2</span> = <span class="cls">Database</span>::<span class="fn">getInstance</span>(); <span class="com">// NO imprime nada — ya existe</span>
+<span class="var">$db3</span> = <span class="cls">Database</span>::<span class="fn">getInstance</span>(); <span class="com">// NO imprime nada — ya existe</span>
+
+<span class="com">// Son exactamente el mismo objeto en memoria</span>
+<span class="fn">var_dump</span>(<span class="var">$db1</span> === <span class="var">$db2</span>); <span class="com">// bool(true)</span>
+<span class="fn">var_dump</span>(<span class="var">$db2</span> === <span class="var">$db3</span>); <span class="com">// bool(true)</span>
+
+<span class="com">// Uso desde cualquier parte del sistema</span>
+<span class="kw">class</span> <span class="cls">UsuarioRepo</span> {
+    <span class="kw">public function</span> <span class="fn">todos</span>(): <span class="kw">array</span> {
+        <span class="kw">return</span> <span class="cls">Database</span>::<span class="fn">getInstance</span>()-><span class="fn">query</span>(<span class="str">'SELECT * FROM usuarios'</span>);
+    }
+}
+
+<span class="kw">class</span> <span class="cls">ProductoRepo</span> {
+    <span class="kw">public function</span> <span class="fn">todos</span>(): <span class="kw">array</span> {
+        <span class="kw">return</span> <span class="cls">Database</span>::<span class="fn">getInstance</span>()-><span class="fn">query</span>(<span class="str">'SELECT * FROM productos'</span>);
+    }
+}
+<span class="com">// Ambos usan la MISMA conexión a DB. Una sola.</span></code></pre>
+      </div>
+
+      <div class="callout good mt2">
+        <strong>En Laravel</strong>
+        El Service Container de Laravel implementa este mismo concepto de forma más sofisticada. Cuando inyectan una dependencia en un constructor, Laravel decide si crear una nueva instancia o reutilizar una existente — basado en cómo está registrado el servicio (singleton vs transient).
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════ SLIDE 16: LAB -->
+    <section class="slide" id="slide-16">
+      <div class="slide-tag">Bloque 5 · Laboratorio</div>
+      <h2>Laboratorio</h2>
+      <p class="lead mt2">Vamos a implementar un <strong>sistema de notificaciones</strong> que integra todo lo visto: interfaces, POO, namespaces, principios SOLID y traits.</p>
+
+      <div class="lab-box">
+        <div class="lab-icon">🔬</div>
+        <h3>Sistema de Notificaciones</h3>
+        <p style="color:var(--text2);margin-top:0.5rem;">Implementen el siguiente código paso a paso. Cada uno en su máquina.</p>
+      </div>
+
+      <ul class="steps mt3">
+        <li>
+          <div class="step-num">1</div>
+          <div class="step-content">
+            <strong>Crear la interface Notificable</strong>
+            <span>Define el contrato que deben cumplir todos los canales de notificación</span>
+          </div>
+        </li>
+        <li>
+          <div class="step-num">2</div>
+          <div class="step-content">
+            <strong>Implementar NotificacionEmail y NotificacionSMS</strong>
+            <span>Dos canales concretos que implementan el contrato</span>
+          </div>
+        </li>
+        <li>
+          <div class="step-num">3</div>
+          <div class="step-content">
+            <strong>Crear la clase Notificador</strong>
+            <span>Usa la interface — no sabe ni le importa qué canal recibe</span>
+          </div>
+        </li>
+        <li>
+          <div class="step-num">4</div>
+          <div class="step-content">
+            <strong>Agregar el trait Logger</strong>
+            <span>Para registrar cada notificación enviada</span>
+          </div>
+        </li>
+        <li>
+          <div class="step-num">5</div>
+          <div class="step-content">
+            <strong>Reto: agregar NotificacionPush sin tocar Notificador</strong>
+            <span>Esto valida que entendieron Open/Closed</span>
+          </div>
+        </li>
+      </ul>
+
+      <div class="mt3">
+        <h3>Código base — copien y completen</h3>
+        <pre><code><span class="kw">&lt;?php</span>
+<span class="kw">declare</span>(<span class="fn">strict_types</span>=<span class="num">1</span>);
+
+<span class="kw">namespace</span> <span class="cls">App\Notificaciones</span>;
+
+<span class="com">// ── PASO 1: Interface ─────────────────────────────────────</span>
+<span class="kw">interface</span> <span class="cls">Notificable</span>
+{
+    <span class="kw">public function</span> <span class="fn">enviar</span>(<span class="kw">string</span> <span class="var">$destinatario</span>, <span class="kw">string</span> <span class="var">$mensaje</span>): <span class="kw">bool</span>;
+    <span class="kw">public function</span> <span class="fn">canal</span>(): <span class="kw">string</span>;
+}
+
+<span class="com">// ── PASO 2: Trait Logger ──────────────────────────────────</span>
+<span class="kw">trait</span> <span class="cls">Logger</span>
+{
+    <span class="kw">private</span> <span class="kw">array</span> <span class="var">$logs</span> = [];
+
+    <span class="kw">public function</span> <span class="fn">registrar</span>(<span class="kw">string</span> <span class="var">$evento</span>): <span class="kw">void</span>
+    {
+        <span class="var">$this</span>->logs[] = <span class="fn">date</span>(<span class="str">'H:i:s'</span>) <span class="op">.</span> <span class="str">' — '</span> <span class="op">.</span> <span class="var">$evento</span>;
+    }
+
+    <span class="kw">public function</span> <span class="fn">getLogs</span>(): <span class="kw">array</span>
+    {
+        <span class="kw">return</span> <span class="var">$this</span>->logs;
+    }
+}
+
+<span class="com">// ── PASO 3: Implementaciones ──────────────────────────────</span>
+<span class="kw">class</span> <span class="cls">NotificacionEmail</span> <span class="kw">implements</span> <span class="cls">Notificable</span>
+{
+    <span class="kw">use</span> <span class="cls">Logger</span>;
+
+    <span class="kw">public function</span> <span class="fn">enviar</span>(<span class="kw">string</span> <span class="var">$destinatario</span>, <span class="kw">string</span> <span class="var">$mensaje</span>): <span class="kw">bool</span>
+    {
+        <span class="var">$this</span>-><span class="fn">registrar</span>(<span class="str">"Email a <span class="var">$destinatario</span>: <span class="var">$mensaje</span>"</span>);
+        <span class="kw">echo</span> <span class="str">"📧 [EMAIL] → <span class="var">$destinatario</span>: <span class="var">$mensaje</span>\n"</span>;
+        <span class="kw">return</span> <span class="kw">true</span>;
+    }
+
+    <span class="kw">public function</span> <span class="fn">canal</span>(): <span class="kw">string</span> { <span class="kw">return</span> <span class="str">'email'</span>; }
+}
+
+<span class="kw">class</span> <span class="cls">NotificacionSMS</span> <span class="kw">implements</span> <span class="cls">Notificable</span>
+{
+    <span class="kw">use</span> <span class="cls">Logger</span>;
+
+    <span class="kw">public function</span> <span class="fn">enviar</span>(<span class="kw">string</span> <span class="var">$destinatario</span>, <span class="kw">string</span> <span class="var">$mensaje</span>): <span class="kw">bool</span>
+    {
+        <span class="var">$this</span>-><span class="fn">registrar</span>(<span class="str">"SMS a <span class="var">$destinatario</span>: <span class="var">$mensaje</span>"</span>);
+        <span class="kw">echo</span> <span class="str">"📱 [SMS]   → <span class="var">$destinatario</span>: <span class="var">$mensaje</span>\n"</span>;
+        <span class="kw">return</span> <span class="kw">true</span>;
+    }
+
+    <span class="kw">public function</span> <span class="fn">canal</span>(): <span class="kw">string</span> { <span class="kw">return</span> <span class="str">'sms'</span>; }
+}
+
+<span class="com">// ── PASO 4: Notificador ──────────────────────────────────</span>
+<span class="kw">class</span> <span class="cls">Notificador</span>
+{
+    <span class="com">// Recibe la interface, no la clase concreta</span>
+    <span class="com">// = no sabe ni le importa qué canal es</span>
+    <span class="kw">public function</span> <span class="fn">__construct</span>(
+        <span class="kw">private</span> <span class="cls">Notificable</span> <span class="var">$canal</span>
+    ) {}
+
+    <span class="kw">public function</span> <span class="fn">notificar</span>(
+        <span class="kw">string</span> <span class="var">$destinatario</span>,
+        <span class="kw">string</span> <span class="var">$mensaje</span>
+    ): <span class="kw">void</span> {
+        <span class="kw">if</span> (!<span class="var">$this</span>->canal-><span class="fn">enviar</span>(<span class="var">$destinatario</span>, <span class="var">$mensaje</span>)) {
+            <span class="kw">throw new</span> \<span class="cls">RuntimeException</span>(
+                <span class="str">"Falló el envío por canal: {$this->canal->canal()}"</span>
+            );
+        }
+    }
+}
+
+<span class="com">// ── PASO 5: Uso ──────────────────────────────────────────</span>
+<span class="var">$email</span> = <span class="kw">new</span> <span class="cls">Notificador</span>(<span class="kw">new</span> <span class="cls">NotificacionEmail</span>());
+<span class="var">$sms</span>   = <span class="kw">new</span> <span class="cls">Notificador</span>(<span class="kw">new</span> <span class="cls">NotificacionSMS</span>());
+
+<span class="var">$email</span>-><span class="fn">notificar</span>(<span class="str">"ana@mail.com"</span>, <span class="str">"Tu pedido fue enviado"</span>);
+<span class="var">$sms</span>-><span class="fn">notificar</span>(<span class="str">"+591 70000000"</span>, <span class="str">"Tu pedido fue enviado"</span>);
+
+<span class="com">// ── RETO: Agrega NotificacionPush ────────────────────────
+// Sin tocar la clase Notificador ni las clases existentes
+// Crea: class NotificacionPush implements Notificable { ... }</span></code></pre>
+      </div>
+
+      <div class="callout good mt3">
+        <strong>🏁 Qué deben ver al ejecutar:</strong>
+        <pre style="background:transparent;border:none;padding:0.5rem 0;margin:0;font-size:0.85rem;font-family:'JetBrains Mono',monospace;">📧 [EMAIL] → ana@mail.com: Tu pedido fue enviado
+📱 [SMS]   → +591 70000000: Tu pedido fue enviado</pre>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════ SLIDE FINAL -->
+    <section class="slide slide-footer" id="slide-17">
+      <h2>¿Qué aprendieron hoy?</h2>
+      <div style="display:flex;flex-wrap:wrap;gap:1rem;justify-content:center;margin:2rem 0;max-width:700px;">
+        <span class="badge badge-green" style="font-size:0.85rem;padding:8px 16px;">Variables con $</span>
+        <span class="badge badge-green" style="font-size:0.85rem;padding:8px 16px;">Tipado estricto</span>
+        <span class="badge badge-green" style="font-size:0.85rem;padding:8px 16px;">POO en PHP</span>
+        <span class="badge badge-blue" style="font-size:0.85rem;padding:8px 16px;">Namespaces</span>
+        <span class="badge badge-blue" style="font-size:0.85rem;padding:8px 16px;">Traits</span>
+        <span class="badge badge-blue" style="font-size:0.85rem;padding:8px 16px;">Composer PSR-4</span>
+        <span class="badge badge-warn" style="font-size:0.85rem;padding:8px 16px;">KISS</span>
+        <span class="badge badge-warn" style="font-size:0.85rem;padding:8px 16px;">YAGNI</span>
+        <span class="badge badge-warn" style="font-size:0.85rem;padding:8px 16px;">SOLID S+O</span>
+        <span class="badge badge-red" style="font-size:0.85rem;padding:8px 16px;">Singleton</span>
+      </div>
+      <p style="color:#9d9bb8;max-width:500px;">La próxima sesión: <strong style="color:#cdd6f4;">Laravel</strong> — todo lo que vieron hoy es la base exacta que Laravel usa internamente.</p>
+    </section>
+
+  </main>
+</div>
+
+<script>
+  function toggleTheme() {
+    const html = document.documentElement;
+    const btn = document.querySelector('.btn-theme');
+    if (html.getAttribute('data-theme') === 'light') {
+      html.setAttribute('data-theme', 'dark');
+      btn.textContent = '☀️ Modo claro';
+    } else {
+      html.setAttribute('data-theme', 'light');
+      btn.textContent = '🌙 Modo oscuro';
+    }
+  }
+
+  function scrollTo(id) {
+    document.getElementById(id).scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  // Progress + active link
+  const slides = document.querySelectorAll('.slide');
+  const links  = document.querySelectorAll('.sidebar-link');
+  const prog   = document.getElementById('progress');
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const id = entry.target.id;
+        links.forEach(l => l.classList.remove('active'));
+        const active = document.querySelector(`.sidebar-link[onclick="scrollTo('${id}')"]`);
+        if (active) active.classList.add('active');
+      }
+    });
+  }, { threshold: 0.25, rootMargin: '-56px 0px 0px 0px' });
+
+  slides.forEach(s => observer.observe(s));
+
+  window.addEventListener('scroll', () => {
+    const scrolled = window.scrollY;
+    const total = document.body.scrollHeight - window.innerHeight;
+    prog.style.width = (scrolled / total * 100) + '%';
+  });
+</script>
+
+</body>
+</html>
